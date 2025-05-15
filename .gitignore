@@ -1,0 +1,11 @@
+target/
+dist/
+node_modules/
+app/
+user_list/
+log/
+*.key
+*.log
+*.exe
+*.ssh
+*.lock

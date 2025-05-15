@@ -1,0 +1,6 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "${workspaceFolder}/server/soursarc-server/Cargo.toml",
+    "${workspaceFolder}/library/soursarc-content-types/Cargo.toml",
+  ]
+}

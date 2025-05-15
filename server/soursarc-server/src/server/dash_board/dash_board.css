@@ -1,0 +1,168 @@
+:root {
+  --col-bg-pri: white;
+  --col-bg-sec: skyblue;
+  --col-bg-ter: lightgray;
+
+  --col-pri: black;
+  --col-sec: darkred;
+  --col-ter: color-mix(in srgb, black 25%, orange);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-family: sans-serif;
+
+  .error {
+    background-color: yellow;
+    color: red;
+    font-weight: 800;
+    font-size: 1.25em;
+  }
+
+  & button {
+    cursor: pointer;
+    background-color: transparent;
+    padding: 0.125em;
+    padding-inline: 0.5em;
+    border: solid 1px var(--col-pri);
+    border-radius: 0.25em;
+    color: var(--col-pri);
+    background-color: var(--col-bg-ter);
+
+    &:hover {
+      background-color: color-mix(
+        in srgb, 
+        white 25%, 
+        var(--col-bg-ter) 75%
+      );
+    }
+    &:active {
+      background-color: color-mix(
+        in srgb, 
+        black 50%, 
+        var(--col-bg-ter) 50%
+      );
+    }
+  }
+
+  & input:is(
+    [type="text"], 
+    [type="number"], 
+    [type="email"], 
+    [type="password"]
+  ) {
+    --bg-color: color-mix(
+      in srgb, 
+      white 25%, 
+      var(--col-bg-ter)
+    );
+
+    width: 100%;
+    height: 100%;
+
+    padding: 0.125em;
+    padding-inline: 0.5em;
+
+    border: solid 1px var(--col-pri);
+    border-radius: 0.25em;
+    background-color: var(--bg-color);
+    color: var(--col-pri);
+
+    &:focus {
+      outline: none;
+      border-color: var(--col-sec);
+      background-color: color-mix(
+        in srgb, 
+        white 25%, 
+        var(--bg-color)
+      );
+    }
+  }
+}
+
+html {
+  width: 100%;
+  height: 100%;
+
+  &> body {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: start;
+
+    background-color: var(--col-bg-pri);
+    color: var(--col-pri);
+
+    &> header {
+      flex: 0 0 auto;
+      width: 100%;
+
+      padding: 0.125em;
+      padding-inline: 1em;
+
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: start;
+      align-items: center;
+
+      background-color: var(--col-bg-sec);
+
+      &> h1 {
+        font-size: 2em;
+        color: var(--col-sec);
+      }
+
+      &> #mini-summary {
+        font-size: 0.75em;
+
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;        
+      }
+
+      &> :last-child {
+        margin-left: auto;
+      }
+    }
+
+    &> main {
+      flex: 1 1 auto;
+      width: 100%;
+
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+      align-items: center;
+
+      &> * {
+        flex: 0 0 auto;
+        width: max-content;
+        height: max-content;
+
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5em;
+
+        padding: 1em;
+        padding-inline: 3em;
+
+        background-color: var(--col-bg-ter);
+
+        &> h2 {
+          font-size: 1.5em;
+          font-weight: 800;
+          color: var(--col-ter);
+        }
+      }
+    }
+  }
+}

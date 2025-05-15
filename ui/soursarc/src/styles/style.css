@@ -1,0 +1,548 @@
+/* 変数定義 */
+:root {
+  --color-primary: #4CAF50;
+  --color-secondary: #f44336;
+  --color-background: #e8e8e8;
+  --color-textarea: #f8f0e0;
+  --color-text: #333;
+  --color-button-hover-filter: white;
+  --color-button-active-filter: black;
+  --color-page-border-filter: black;
+  --color-header-filter: black;
+  --color-nav-filter: darkslategray;
+}
+
+/* 初期化 */
+* {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-variant-emoji: emoji;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* ページ全体・共通のレイアウトについての設定 */
+html {
+  width: 100vw;
+  height: 100vh;
+
+  &> body {
+    width: 100%;
+    height: 100%;
+  }
+
+  & h1 {
+    padding-inline: 0.5em;
+    font-size: 1.25em;
+    font-weight: bold;
+    color: var(--color-primary);
+  }
+
+  & h2 {
+    padding-inline: 0.25em;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-secondary);
+  }
+
+  & h3 {
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--color-text);
+  }
+
+  & button, .clickable {
+    --button-bg-color: var(--color-primary);
+    --button-font-color: white;
+
+    border: solid 1px color-mix(
+      in srgb, 
+      var(--color-page-border-filter) 10%, 
+      var(--button-bg-color)
+    );
+    border-radius: 0.5em;
+    padding-inline: 1em;
+    color: var(--button-font-color);
+    background-color: var(--button-bg-color);
+    transition: background-color 0.1s ease, scale 0.1s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: color-mix(
+        in srgb, 
+        var(--color-button-hover-filter) 10%, 
+        var(--button-bg-color)
+      );
+    }
+    &:active {
+      background-color: color-mix(
+        in srgb, 
+        var(--color-button-active-filter) 10%, 
+        var(--button-bg-color)
+      );
+      transform: scale(0.95);
+    }
+  }
+
+  & textarea, input:is(
+    [type="text"],
+    [type="number"],
+    [type="email"],
+    [type="url"],
+    [type="search"],
+    [type="password"]
+  ) {
+    padding: 0.125em;
+    padding-inline: 0.5em;
+    border: solid 1px color-mix(
+      in srgb, 
+      var(--color-page-border-filter) 10%, 
+      var(--color-background)
+    );
+    border-radius: 0.25em;
+    font-size: 1em;
+    font-family: inherit;
+    resize: none;
+
+    &:focus {
+      outline: none;
+      box-shadow: inset 0 0 0 2px var(--color-primary);
+    }
+  }
+}
+
+/* ページの詳細なレイアウトについての設定 */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  &> header {
+    width: 100%;
+    height: 2em;
+    flex: 0 0 auto;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+
+    border-bottom: solid 1px color-mix(
+      in srgb, 
+      var(--color-page-border-filter) 10%, 
+      var(--color-background)
+    );
+
+    background-color: color-mix(
+      in srgb, 
+      var(--color-header-filter) 5%, 
+      var(--color-background)
+    );
+
+    & > * {
+      flex: 0 0 auto;
+    }
+
+    & > :last-child {
+      margin-left: auto;
+    }
+  }
+
+  &> main {
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+
+    &> nav {
+      height: 100%;
+      flex: 0 0 auto;
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+
+      padding: 0.5em;
+      padding-inline: 1em;
+      border-right: solid 1px color-mix(
+        in srgb, 
+        var(--color-page-border-filter) 10%, 
+        var(--color-background)
+      );
+
+      background-color: color-mix(
+        in srgb, 
+        var(--color-nav-filter) 5%, 
+        var(--color-background)
+      );
+    }
+
+    &> section {
+      height: 100%;
+      flex: 1 1 auto;
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+
+      &> * {
+        padding-inline: 0.5em;
+      }
+
+      &> header {
+        width: 100%;
+        flex: 0 0 auto;
+
+        border-bottom: solid 1px color-mix(
+          in srgb, 
+          var(--color-page-border-filter) 15%, 
+          var(--color-background)
+        );
+      }
+
+      &> main {
+        width: 100%;
+        flex: 1 1 auto;
+
+        display: flex;
+        flex-flow: column;
+        align-items: start;
+        align-content: start;
+
+        overflow-y: auto;
+
+        padding: 0.25em;
+
+        & > #collection-summary {
+          width: 100%;
+          flex: 0 0 auto;
+
+          & > .cardstyle-ui-wrap:has(> .cardstyle-ui#content-summary) {
+            flex: 1 0 auto;
+            min-width: 100%;
+            min-height: 4em;
+            max-height: min(50vh, 25em);
+  
+            &> * > main, &> * >.card-ui-main {
+              overflow-y: auto;
+              word-break: break-all;
+              word-wrap:  normal;
+            }
+          }
+        }
+
+        & > #collection-cards {
+          width: 100%;
+          flex: 1 1 auto;
+          display: flex;
+          flex-flow: row wrap;
+          align-items: start;
+          justify-content: flex-start;
+
+          & > .cardstyle-ui-wrap:has(> .cardstyle-ui) {
+            flex: 1 0 auto;
+  
+            min-width: min(15vw, 15em);
+            max-width: min(50vw, 50em);
+            max-height: 12em;
+  
+            &> * > main, &> * >.card-ui-main {
+              overflow-y: hidden;
+              word-break: break-all;
+              word-wrap: break-word;
+            }
+  
+          }
+        }
+      }
+
+      &> footer {
+        width: 100%;
+        flex: 0 0 auto;
+        text-align: center;
+
+        border-top: solid 1px color-mix(
+          in srgb, 
+          var(--color-page-border-filter) 15%, 
+          var(--color-background)
+        );
+      }
+    }
+  }
+}
+
+.pulldown-ui {
+  height: 100%;
+
+  position: relative;
+  display: inline-block;
+
+  &> button {
+    height: 100%;
+    width: 100%;
+  }
+
+  &> ul {
+    display: none;
+    position: absolute;
+    width: max-content;
+    min-width: 8em;
+    z-index: 1;
+
+    padding: 0.125em;
+    border: solid 1px color-mix(
+      in srgb, 
+      var(--color-page-border-filter) 25%, 
+      var(--color-background)
+    );
+    border-radius: 0.5em;
+    background-color: var(--color-background);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+    &> li {
+      display: block;
+      width: 100%;
+      list-style: none;
+      margin: 0;
+
+      text-align: left;
+
+      & a {
+        display: block;
+        width: 100%;
+        color: var(--color-text);
+        text-decoration: none;
+        --button-bg-color: var(--color-background);
+        --button-font-color: var(black);
+      }
+    }
+  }
+}
+
+.blockstyle-ui {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.5em;
+  border-radius: 0.5em;
+
+  background-color: color-mix(
+    in srgb, 
+    white 50%, 
+    var(--color-background)
+  );
+}
+
+.cardstyle-ui-wrap.placeholder {
+  background: repeating-linear-gradient(
+    45deg,
+    #ccc,
+    #ccc 8px,
+    #eee 8px,
+    #eee 16px
+  );
+  border: 2px dashed #aaa;
+  opacity: 0.5;
+}
+.cardstyle-ui-wrap:has(> .cardstyle-ui) {
+  width: max-content;
+  height: 100%;
+
+  padding: 0.25em;
+
+  &>.cardstyle-ui {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-flow: column;
+    align-items: first baseline;
+    justify-content: flex-start;
+
+    padding: 0.25em;
+    border-radius: 0.5em;
+    background-color: color-mix(
+      in srgb,
+      var(--color-textarea) 50%, 
+      var(--color-background)
+    );
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+    &> header {
+      width: 100%;
+      flex: 0 0 auto;
+      text-align: center;
+      font-weight: bold;
+  
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+      justify-content: flex-start;
+  
+      padding-inline: 0.5em;
+      border-top-left-radius: 0.25em;
+      border-top-right-radius: 0.25em;
+  
+      background-color: var(--color-primary);
+
+      &> .card-ui-movetab {
+        flex: 0 0 auto;
+        width: 0;
+        height: 85%;
+        padding-inline: 0.1em;
+        border: 2px outset color-mix(
+          in srgb, 
+          white 25%, 
+          var(--color-primary)
+        );
+        cursor: grab;
+
+        &:active {
+          cursor: grabbing;
+          border: 2px inset color-mix(
+            in srgb, 
+            white 25%, 
+            var(--color-primary)
+          );
+        }
+      }
+
+      &> .cardstyle-title {
+        flex: 1 0 auto;
+        color: white;
+      }
+
+      &> button {
+        padding-inline: 0.125em;
+      }
+    }
+  
+    &> main, &> .card-ui-main {
+      width: 100%;
+      height: 100%;
+      flex: 1 1 auto;
+
+      display: flex;
+      flex-flow: column;
+      justify-content: flex-start;
+      align-items: first baseline;
+  
+      border-bottom-left-radius: 0.25em;
+      border-bottom-right-radius: 0.25em;
+  
+      padding-inline: min(2.5%, 1em);
+  
+      background-color: var(--color-textarea);
+      color : var(--color-text);
+      text-decoration: none;
+      & > * {
+        padding-inline: 0.5em;
+      }
+    }
+
+    &> .card-ui-resizetab {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 1em;
+      height: 1em;
+      padding: 0.25em;
+      border-bottom-right-radius: 0.5em;
+
+      background-color: color-mix(
+        in srgb, 
+        black 10%, 
+        transparent
+      );
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+      cursor: nw-resize;
+
+      &:hover {
+        background-color: color-mix(
+          in srgb, 
+          black 25%, 
+          transparent
+        );
+      }
+    }
+  }
+}
+
+.modal-handler {
+  position: fixed;
+  .modal-ui {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    .modal-close {
+      --button-bg-color: var(--color-secondary);
+    }
+  }
+}
+
+#open-assistant {
+  width: 3em;
+  height: 3em;
+  border-radius: 50%;
+  font-size: 2.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.50),
+    0 1.5em 2.5em -1em rgba(76,175,80,0.15),
+    0 0.2em 0.5em 0 rgba(0,0,0,0.10);
+
+  cursor: pointer;
+  position: fixed;
+  right: 2em;
+  bottom: 2em;
+  left: auto;
+  top: auto;
+  z-index: 200;
+  transition: box-shadow 0.5s, transform 0.1s;
+  /* ふきだし絵文字を中央に */
+  padding: 0;
+
+  &:hover {
+    box-shadow:
+      0 8px 24px rgba(76,175,80,0.60),
+      0 2em 3em -1em rgba(76,175,80,0.30),
+      0 0.3em 0.7em 0 rgba(0,0,0,0.12);
+    transform: scale(1.08);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+#edit-modal {
+  &> .cardstyle-ui {
+    &> main {
+      &> textarea {
+        resize: none;
+        border: solid 1px color-mix(
+          in srgb, 
+          var(--color-page-border-filter) 10%, 
+          var(--color-background)
+        );
+        border-radius: 0.5em;
+      }
+    }
+  }
+}

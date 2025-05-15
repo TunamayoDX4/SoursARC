@@ -1,0 +1,28 @@
+[package]
+name = "soursarc-content-types"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies.serde]
+version = "1"
+features = ["derive"]
+
+[dependencies.chrono]
+version = "0.4"
+features = ["serde"]
+
+[dependencies.argon2]
+version = "0.5"
+features = ["password-hash"]
+
+[dependencies.password-hash]
+version = "0.5"
+features = ["getrandom"]
+
+[dependencies.ulid]
+version = "1"
+features = ["serde"]
+
+[dependencies]
+jsonwebtoken = "9"
+tracing = "0.1"
