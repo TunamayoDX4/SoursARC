@@ -18,8 +18,8 @@ impl Default for RateLimiterConfig {
   fn default() -> Self {
     Self {
       expire_duration: Duration::seconds(60 * 5),
-      limit_per_dur: 100,
-      cleanup_interval: 60,
+      limit_per_dur: 10,
+      cleanup_interval: 200,
     }
   }
 }

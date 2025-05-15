@@ -68,8 +68,9 @@ pub async fn server_starting() -> Result<(), crate::StdError>
   // Ctrl-CとSIGTERMを待機する
   tokio::spawn(wait_for_ctrlc_and_sigterm());
 
-  let app =
-    Router::new().nest("/dash_board", dash_board::router());
+  let app = Router::new()
+    .nest("/dash_board", dash_board::router())
+    .route("/", get(|| async { Html("Hello, World!") }));
 
   tracing::info!(
     "Server starting on {}",
