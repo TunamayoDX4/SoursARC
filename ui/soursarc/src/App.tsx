@@ -1,8 +1,8 @@
 import { EmojiText } from './components/EmojiText'
 import { normalizeEmoji } from './components/normalizeEmoji'
 import { SamplePopover } from './components/SamplePopover'
-import { DraggableWindow } from './components/SampleWindowWidget'
 import { CommonDropdown } from './components/lib_jsx/CommonPulldown'
+import { CommonWindow } from './components/lib_jsx/CommonWindow/CommonWindow'
 
 function Header() {
   return (
@@ -41,10 +41,100 @@ function MainSection() {
     <section>
       <h1>SoursARCへようこそ！</h1>
       <EmojiText>{teststring + ':yellow_heart:'}</EmojiText>
-      <DraggableWindow
-        sizeMin="25em, 15em"
-        sizeMax="100%, 100%"
-        sizeDefault="25em, 15em"
+      <CommonWindow
+        sizeMin="10em, 8em"
+        sizeMax="45em, 20em"
+        sizeDefault="25em, 8em"
+        title="ウィンドウタイトル"
+        children={
+          <div>
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+            <p>ウィンドウの中身</p> 
+          </div>
+        }
       />
       <SamplePopover />
     </section>

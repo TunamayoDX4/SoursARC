@@ -313,7 +313,7 @@ button {
   box-sizing: border-box;
 
   &> header {
-    min-height: 0.25em;
+    min-height: 1.5em;
     padding: 0.125em;
     padding-inline: 0.25em;
 
@@ -350,6 +350,9 @@ button {
     --font-color: var(--col-font-pri);
 
     flex: 1 1 auto;
+
+    padding: 1em;
+    overflow-y: auto;
 
     background-color: var(--bg-color);
     color: var(--font-color);

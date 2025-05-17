@@ -1,38 +1,10 @@
 import * as Dialog from '@radix-ui/react-dialog'
-import { useLayoutEffect, useState, useRef } from 'react'
-
-/**
- * DOMからサイズ指定値を取得する関数
- * @param selector クラス名セレクタ
- * @param fallback デフォルト値（"width, height"形式）
- * @returns { width: string, height: string }
- */
-function getSizePairFromDOM(
-  selector: string,
-  fallback: string
-): { width: string; height: string } {
-  const el = document.querySelector(selector)
-  if (el && el.textContent && el.textContent.trim()) {
-    const [w, h] = el.textContent.trim().split(/[,\s]+/).map((s) => s.trim()).filter(Boolean)
-    return {
-      width: w || '8em',
-      height: h || '20em',
-    }
-  }
-  const [w, h] = fallback.split(/[,\s]+/).map((s) => s.trim()).filter(Boolean)
-  return {
-    width: w || '8em',
-    height: h || '20em',
-  }
-}
+import { useLayoutEffect, useRef, useState } from 'react'
 
 /**
  * "幅, 高さ"形式の文字列を分割して返す
- * @param sizeStr サイズ文字列（例: "12em, 8em"）
- * @param fallback デフォルト値
- * @returns { width: string, height: string }
  */
-function parseSizePair(sizeStr: string | null, fallback: string): { width: string; height: string } {
+function parseSizePair(sizeStr: string | null | undefined, fallback: string): { width: string; height: string } {
   if (sizeStr && typeof sizeStr === "string" && sizeStr.trim()) {
     const [w, h] = sizeStr.trim().split(/[,\s]+/).map((s) => s.trim()).filter(Boolean)
     return {
@@ -47,58 +19,35 @@ function parseSizePair(sizeStr: string | null, fallback: string): { width: strin
   }
 }
 
-export function DraggableWindow({
-  sizeMin = "10em, 5em",
-  sizeMax = "100%, 100%",
-  sizeDefault = null,
-}: {
-  sizeMin?: string
-  sizeMax?: string
-  sizeDefault?: string | null
-}) {
-  const dialogRef = useRef<HTMLDivElement>(null)
-  // 初回のみデフォルトサイズを反映
-  const [size, setSize] = useState<{ width: string; height: string }>(() =>
-    parseSizePair(sizeDefault, "32em, 20em")
-  )
-  const [open, setOpen] = useState(false)
-
-  // サイズ指定値を引数から取得
-  function getWidgetSizes() {
-    return {
-      min: parseSizePair(sizeMin, "10em, 5em"),
-      max: parseSizePair(sizeMax, "100%, 100%"),
-    }
+/**
+ * px/%,emなどをpxに変換
+ */
+function toPx(val: string, base: number): number {
+  if (val.endsWith('em')) {
+    const em = parseFloat(val)
+    return em * parseFloat(getComputedStyle(document.documentElement).fontSize)
   }
+  if (val.endsWith('%')) {
+    const percent = parseFloat(val)
+    return base * percent / 100
+  }
+  if (val.endsWith('px')) {
+    return parseFloat(val)
+  }
+  return parseFloat(val)
+}
 
-  // Dialogが表示された直後に中央配置（サイズはstateで固定）
-  useLayoutEffect(() => {
-    if (open) {
-      const dialog = dialogRef.current
-      if (dialog) {
-        dialog.style.width = size.width
-        dialog.style.height = size.height
-        // 左上基準で中央配置
-        const rect = dialog.getBoundingClientRect()
-        const winWidth = rect.width
-        const winHeight = rect.height
-        dialog.style.left = window.innerWidth / 2 - winWidth / 2 + 'px'
-        dialog.style.top = window.innerHeight / 2 - winHeight / 2 + 'px'
-        dialog.style.transform = ''
-      }
-    }
-  }, [open, size.width, size.height])
-
-  // ドラッグ処理（画面からはみ出さないように制御）
+/**
+ * ドラッグ移動用フック
+ */
+function useDraggable(dialogRef: React.RefObject<HTMLDivElement | null>) {
   function onMouseDown(e: React.MouseEvent) {
     const dialog = dialogRef.current
     if (!dialog) return
-    // transform解除して絶対座標に切り替え
     const rect = dialog.getBoundingClientRect()
     dialog.style.transform = ''
     dialog.style.left = rect.left + 'px'
     dialog.style.top = rect.top + 'px'
-
     const startX = e.clientX
     const startY = e.clientY
     const origLeft = rect.left
@@ -124,19 +73,25 @@ export function DraggableWindow({
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', onMouseUp)
   }
+  return onMouseDown
+}
 
-  // リサイズ処理（右下ハンドル基準でリサイズ、左上は絶対に動かさない）
+/**
+ * リサイズ用フック
+ */
+function useResizable(
+  dialogRef: React.RefObject<HTMLDivElement | null>,
+  getWidgetSizes: () => any,
+  setSize: (s: { width: string, height: string }) => void
+) {
   function onResizeMouseDown(e: React.MouseEvent) {
     e.stopPropagation()
     const dialog = dialogRef.current
     if (!dialog) return
-    // transform解除して絶対座標に切り替え
     const rect = dialog.getBoundingClientRect()
     dialog.style.transform = ''
-    // left/topを絶対座標で固定
     dialog.style.left = rect.left + 'px'
     dialog.style.top = rect.top + 'px'
-
     const startX = e.clientX
     const startY = e.clientY
     const startWidth = rect.width
@@ -145,32 +100,15 @@ export function DraggableWindow({
     const startTop = rect.top
     const sizes = getWidgetSizes()
 
-    function parseSize(val: string, base: number): number {
-      if (val.endsWith('em')) {
-        const em = parseFloat(val)
-        return em * parseFloat(getComputedStyle(document.documentElement).fontSize)
-      }
-      if (val.endsWith('%')) {
-        const percent = parseFloat(val)
-        return base * percent / 100
-      }
-      if (val.endsWith('px')) {
-        return parseFloat(val)
-      }
-      return parseFloat(val)
-    }
-
-    const minWidthPx = parseSize(sizes.min.width, window.innerWidth)
-    const minHeightPx = parseSize(sizes.min.height, window.innerHeight)
-    const maxWidthPx = parseSize(sizes.max.width, window.innerWidth)
-    const maxHeightPx = parseSize(sizes.max.height, window.innerHeight)
+    const minWidthPx = toPx(sizes.min.width, window.innerWidth)
+    const minHeightPx = toPx(sizes.min.height, window.innerHeight)
+    const maxWidthPx = toPx(sizes.max.width, window.innerWidth)
+    const maxHeightPx = toPx(sizes.max.height, window.innerHeight)
 
     function onMouseMove(ev: MouseEvent) {
       if (!dialog) return
-      // 右下ハンドル基準でリサイズ（左上は絶対に動かさない）
       let newWidth = Math.max(minWidthPx, Math.min(startWidth + (ev.clientX - startX), maxWidthPx))
       let newHeight = Math.max(minHeightPx, Math.min(startHeight + (ev.clientY - startY), maxHeightPx))
-      // 右下が画面外に出ないように制限
       const maxRight = window.innerWidth
       const maxBottom = window.innerHeight
       if (startLeft + newWidth > maxRight) {
@@ -181,7 +119,6 @@ export function DraggableWindow({
       }
       dialog.style.width = newWidth + 'px'
       dialog.style.height = newHeight + 'px'
-      // left/topは絶対にstartLeft/startTopのまま
       dialog.style.left = startLeft + 'px'
       dialog.style.top = startTop + 'px'
       setSize({ width: newWidth + 'px', height: newHeight + 'px' })
@@ -193,8 +130,68 @@ export function DraggableWindow({
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', onMouseUp)
   }
+  return onResizeMouseDown
+}
 
+/**
+ * 共通ウィンドウ
+ */
+export function CommonWindow({
+  sizeMin = "10em, 5em",
+  sizeMax = "100%, 100%",
+  sizeDefault = null,
+  title = "ウィンドウタイトル",
+  children,
+}: {
+  sizeMin?: string
+  sizeMax?: string
+  sizeDefault?: string | null
+  title?: string
+  children?: React.ReactNode
+}) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState<{ width: string; height: string }>(() =>
+    parseSizePair(sizeDefault, "32em, 20em")
+  )
+  const [open, setOpen] = useState(false)
+
+  function getWidgetSizes() {
+    return {
+      min: parseSizePair(sizeMin, "10em, 5em"),
+      max: parseSizePair(sizeMax, "100%, 100%"),
+    }
+  }
+
+  const onMouseDown = useDraggable(dialogRef)
+  const onResizeMouseDown = useResizable(dialogRef, getWidgetSizes, setSize)
   const widgetSizes = getWidgetSizes()
+
+  useLayoutEffect(() => {
+    if (open) {
+      const dialog = dialogRef.current
+      if (dialog) {
+        // すでに絶対座標(left/top)が設定されていればそれを維持
+        // まだなら中央配置
+        const left = dialog.style.left
+        const top = dialog.style.top
+        if (!left || !top || left === '' || top === '') {
+          dialog.style.width = size.width
+          dialog.style.height = size.height
+          const rect = dialog.getBoundingClientRect()
+          const winWidth = rect.width
+          const winHeight = rect.height
+          dialog.style.left = window.innerWidth / 2 - winWidth / 2 + 'px'
+          dialog.style.top = window.innerHeight / 2 - winHeight / 2 + 'px'
+          dialog.style.transform = ''
+        } else {
+          // サイズだけ更新、位置は維持
+          dialog.style.width = size.width
+          dialog.style.height = size.height
+          dialog.style.transform = ''
+        }
+      }
+    }
+  }, [open, size.width, size.height])
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -220,13 +217,13 @@ export function DraggableWindow({
           }}
         >
           <header onMouseDown={onMouseDown}>
-            <Dialog.Title>ウィンドウタイトル</Dialog.Title>
+            <Dialog.Title>{title}</Dialog.Title>
             <Dialog.Close asChild>
               <button>×</button>
             </Dialog.Close>
           </header>
-          <main style={{ padding: '1em' }}>
-            ここにウィンドウの内容を書くよ！
+          <main>
+            {children}
           </main>
           <footer></footer>
           <div
