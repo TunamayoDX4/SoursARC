@@ -1,0 +1,23 @@
+[package]
+name = "soursarc-ui-utils"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies.hashbrown]
+version = "0.15"
+features = ["serde"]
+
+[dependencies.serde]
+version = "1"
+features = ["derive"]
+
+[dependencies.wasm-bindgen]
+version = "0.2"
+
+[dependencies]
+serde_json = "1"
+icu_properties = "2"
+regex = "1"

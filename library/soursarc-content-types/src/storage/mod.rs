@@ -1,291 +1,164 @@
-pub mod arc;
+use super::traits::*;
 
-use crate::content_traits::ContentTrait;
-use std::collections::{HashMap, VecDeque};
-
-/// # StorageCapMode
-///
-/// ## Summary
-/// ストレージのキャッシュ戦略を指定するenum。
-/// - `Free` : キャッシュ制限なし
-/// - `Limited` : キャッシュ容量を指定し、キャッシュアルゴリズムを適用
-#[derive(Debug, PartialEq, Eq)]
-pub enum StorageCapMode<C: Cache<T>, T: PartialEq + Copy> {
-  /// キャッシュ制限なし
-  Free,
-  /// キャッシュ容量制限あり
-  Limited { _dum: std::marker::PhantomData<T>, cache: C },
+pub struct SimpleStorage<I: SoursARCInstance> {
+  pub data: std::collections::HashMap<I::Id, I>,
+  pub table: indexmap::IndexMap<I::Name, I::Id>,
 }
-
-impl<C, T> Cache<T> for StorageCapMode<C, T>
-where
-  C: Cache<T>,
-  T: PartialEq + Copy,
-{
-  /// インデックスからキャッシュ内容を取得
-  fn get(&self, id: usize) -> Option<&T> {
-    match self {
-      StorageCapMode::Free => None,
-      StorageCapMode::Limited { cache, .. } => cache.get(id),
-    }
-  }
-
-  /// キャッシュ容量を取得
-  fn capacity(&self) -> usize {
-    match self {
-      StorageCapMode::Free => 0,
-      StorageCapMode::Limited { cache, .. } => {
-        cache.capacity()
-      }
-    }
-  }
-
-  /// キャッシュを更新（touch）
-  fn touch(&mut self, id: T) -> Option<T> {
-    match self {
-      StorageCapMode::Free => None,
-      StorageCapMode::Limited { cache, .. } => {
-        cache.touch(id)
-      }
-    }
-  }
-
-  /// キャッシュから削除
-  fn remove(&mut self, id: T) -> Option<T> {
-    match self {
-      StorageCapMode::Free => None,
-      StorageCapMode::Limited { cache, .. } => {
-        cache.remove(id)
-      }
-    }
-  }
-}
-
-/// # Cache
-///
-/// ## Summary
-/// キャッシュアルゴリズムのためのトレイト。
-pub trait Cache<T>
-where
-  T: PartialEq + Copy,
-{
-  /// インデックスからキャッシュ内容を取得
-  fn get(&self, id: usize) -> Option<&T>;
-  /// キャッシュ容量を取得
-  fn capacity(&self) -> usize;
-  /// キャッシュを更新（touch）
-  fn touch(&mut self, id: T) -> Option<T>;
-  /// キャッシュから削除
-  fn remove(&mut self, id: T) -> Option<T>;
-}
-
-/// # ResizableCache
-///
-/// ## Summary
-/// キャッシュ容量を動的に変更可能なキャッシュ用トレイト。
-pub trait ResizableCache<T>: Cache<T>
-where
-  T: PartialEq + Copy,
-{
-  /// キャッシュ容量を変更
-  fn resize(&mut self, new_capacity: usize) -> bool;
-}
-
-/// # StorageInsertResult
-///
-/// ## Summary
-/// ストレージにデータを追加した結果を表すenum。
-#[derive(Debug, PartialEq, Eq)]
-pub enum StorageInsertResult<T> {
-  /// 既存データと被ったので上書き
-  Replaced(T),
-  /// キャッシュから追い出された
-  OutOfCache(T),
-  /// 空きスロットに追加できた
-  Inserted(usize),
-}
-
-/// # Storage
-///
-/// ## Summary
-/// ContentTraitを満たすデータを格納・検索・キャッシュするストレージ構造体。
-pub struct Storage<T: ContentTrait> {
-  /// データ本体（Vec<Option<T>>で管理）
-  pub data: Vec<Option<T>>,
-  /// IDをキーにしたインデックス
-  pub by_id: HashMap<<T as ContentTrait>::ContentID, usize>,
-  /// name_idをキーにしたインデックス
-  pub by_name_id: HashMap<String, usize>,
-  /// 空きスロットのインデックス
-  free_list: VecDeque<usize>,
-  /// キャッシュ戦略
-  pub cap_mode: StorageCapMode<arc::ARC<usize>, usize>,
-}
-
-impl<T: ContentTrait> Storage<T> {
-  /// 新しいStorageを作成
-  ///
-  /// ## Argument
-  /// - `capacity`: Option<usize> (Noneなら無制限、Someならキャッシュ容量)
-  ///
-  /// ## Return value
-  /// - `Storage<T>` : 新しく生成されたストレージ
-  pub fn new(capacity: Option<usize>) -> Self {
-    let cap_mode = match capacity {
-      Some(cap) => StorageCapMode::Limited {
-        _dum: std::marker::PhantomData,
-        cache: arc::ARC::new(cap),
-      },
-      None => StorageCapMode::Free,
-    };
+impl<I: SoursARCInstance> SimpleStorage<I> {
+  pub fn new() -> Self {
     Self {
-      data: Vec::new(),
-      by_id: HashMap::new(),
-      by_name_id: HashMap::new(),
-      free_list: VecDeque::new(),
-      cap_mode,
+      data: std::collections::HashMap::new(),
+      table: indexmap::IndexMap::new(),
     }
   }
 
-  /// データを追加
+  /// データを挿入する
   ///
   /// ## Argument
-  /// - `item`: 追加するデータ
+  /// - `item`: 挿入するインスタンス
   ///
   /// ## Return value
-  /// - `StorageInsertResult<T>` : 追加結果
-  pub fn insert(
-    &mut self,
-    item: T,
-  ) -> StorageInsertResult<T> {
-    let id = item.id();
-    let name_id = item.name_id().to_string();
-
-    // 既存なら上書き
-    if let Some(&idx) = self.by_id.get(&id) {
-      let old = self.data[idx].replace(item);
-      self.by_name_id.insert(name_id, idx);
-      self.cap_mode.touch(idx);
-      return StorageInsertResult::Replaced(old.unwrap());
-    }
-
-    // 空きスロットがあれば再利用
-    let idx =
-      if let Some(free_idx) = self.free_list.pop_front() {
-        self.data[free_idx] = Some(item);
-        free_idx
-      } else {
-        self.data.push(Some(item));
-        self.data.len() - 1
-      };
-
-    self.by_id.insert(id, idx);
-    self.by_name_id.insert(name_id, idx);
-    // キャッシュに追加し、溢れたらOutOfCacheで返す
-    if let Some(evicted) = self.cap_mode.touch(idx) {
-      StorageInsertResult::OutOfCache(
-        // キャッシュから追い出されたものを返す
-        // 追い出されたものはキャッシュから削除する
-        self.remove_by_index(evicted).expect("logic error"),
-      )
-    } else {
-      StorageInsertResult::Inserted(idx)
-    }
+  /// - 既存の値があればそれを返す
+  pub fn insert(&mut self, item: I) -> Option<I> {
+    let id = item.id().clone();
+    let name = item.name().clone();
+    self.table.insert(name.clone(), id);
+    self.data.insert(id, item)
   }
 
-  /// IDからデータを取得
+  /// データを削除する
   ///
   /// ## Argument
-  /// - `id`: データのID
+  /// - `id`: 削除するインスタンスのID
   ///
   /// ## Return value
-  /// - `Option<&T>` : 取得できたデータ
-  pub fn get_by_id(
-    &mut self,
-    id: <T as ContentTrait>::ContentID,
-  ) -> Option<&T> {
-    if let Some(&idx) = self.by_id.get(&id) {
-      self.cap_mode.touch(idx);
-      self.data.get(idx).and_then(|opt| opt.as_ref())
-    } else {
-      None
-    }
-  }
-
-  /// name_idからデータを取得
-  ///
-  /// ## Argument
-  /// - `name_id`: データの文字列ID
-  ///
-  /// ## Return value
-  /// - `Option<&T>` : 取得できたデータ
-  pub fn get_by_name_id(
-    &mut self,
-    name_id: &str,
-  ) -> Option<&T> {
-    if let Some(&idx) = self.by_name_id.get(name_id) {
-      self.cap_mode.touch(idx);
-      self.data.get(idx).and_then(|opt| opt.as_ref())
-    } else {
-      None
-    }
-  }
-
-  /// IDで削除
-  ///
-  /// ## Argument
-  /// - `id`: データのID
-  ///
-  /// ## Return value
-  /// - `Option<T>` : 削除されたデータ
-  pub fn remove_by_id(
-    &mut self,
-    id: <T as ContentTrait>::ContentID,
-  ) -> Option<T> {
-    if let Some(idx) = self.by_id.remove(&id) {
-      if let Some(item) = self.data[idx].as_ref() {
-        self.by_name_id.remove(&item.name_id().to_string());
-      }
-      let old = self.data[idx].take();
-      self.free_list.push_back(idx);
-      self.cap_mode.remove(idx);
-      old
-    } else {
-      None
-    }
-  }
-
-  /// インデックスで削除
-  ///
-  /// ## Argument
-  /// - `idx`: データのインデックス
-  ///
-  /// ## Return value
-  /// - `Option<T>` : 削除されたデータ
-  pub fn remove_by_index(
-    &mut self,
-    idx: usize,
-  ) -> Option<T> {
-    if idx >= self.data.len() {
-      return None;
-    }
-    if let Some(item) = self.data[idx].take() {
-      // IDとname_idのインデックスも消す
-      self.by_id.remove(&item.id());
-      self.by_name_id.remove(&item.name_id().to_string());
-      self.free_list.push_back(idx);
-      self.cap_mode.remove(idx);
+  /// - 削除された値
+  pub fn remove(&mut self, id: &I::Id) -> Option<I> {
+    if let Some(item) = self.data.remove(id) {
+      self.table.shift_remove(item.name());
       Some(item)
     } else {
       None
     }
   }
 
-  /// イテレーション
+  /// データのイテレータを返す
+  pub fn iter(&self) -> impl Iterator<Item = (&I::Id, &I)> {
+    self.data.iter()
+  }
+
+  /// 名前テーブルのイテレータを返す
+  pub fn iter_name(
+    &self,
+  ) -> impl Iterator<Item = (&I::Name, &I)> {
+    self
+      .table
+      .iter()
+      .map(|(k, id)| (k, self.data.get(id).unwrap()))
+  }
+
+  /// data(HashMap<I::Id, I>)のみをMessagePackでファイル出力する
+  ///
+  /// ## Argument
+  /// - `path`: 出力先パス
   ///
   /// ## Return value
-  /// - `impl Iterator<Item = &T>` : データのイテレータ
-  pub fn iter(&self) -> impl Iterator<Item = &T> {
-    self.data.iter().filter_map(|opt| opt.as_ref())
+  /// - `Result<(), std::io::Error>`
+  pub fn export_data_msgpack(
+    &self,
+    path: impl AsRef<std::path::Path>,
+  ) -> Result<(), std::io::Error> {
+    let file = std::fs::File::create(path)?;
+    rmp_serde::encode::write(
+      &mut std::io::BufWriter::new(file),
+      &self.data,
+    )
+    .map_err(|e| {
+      std::io::Error::new(std::io::ErrorKind::Other, e)
+    })
+  }
+
+  /// MessagePackファイルからdata(HashMap<I::Id, I>)をインポートし、IndexMapも再構築する
+  ///
+  /// ## Argument
+  /// - `path`: 読み込み元パス
+  ///
+  /// ## Return value
+  /// - `Result<(), std::io::Error>`
+  pub fn import_data_msgpack(
+    &mut self,
+    path: impl AsRef<std::path::Path>,
+  ) -> Result<(), std::io::Error> {
+    let file = std::fs::File::open(path)?;
+    let reader = std::io::BufReader::new(file);
+    let data: std::collections::HashMap<I::Id, I> =
+      rmp_serde::from_read(reader).map_err(|e| {
+        std::io::Error::new(std::io::ErrorKind::Other, e)
+      })?;
+    // IndexMap(table)を再構築
+    let mut table = indexmap::IndexMap::new();
+    for (id, item) in &data {
+      table.insert(item.name().clone(), id.clone());
+    }
+    self.data = data;
+    self.table = table;
+    Ok(())
+  }
+}
+impl<I> SoursARCStorage<I> for SimpleStorage<I>
+where
+  I: SoursARCInstance,
+{
+  type Data<'a>
+    = &'a I
+  where
+    Self: 'a;
+  fn get<'a>(&'a self, id: I::Id) -> Option<Self::Data<'a>> {
+    self.data.get(&id)
+  }
+  fn get_by_name<'a>(
+    &'a self,
+    name: &I::Name,
+  ) -> Option<Self::Data<'a>> {
+    self.data.get(self.table.get(name)?)
+  }
+  fn get_name_by_id<'a>(
+    &'a self,
+    id: &I::Id,
+  ) -> Option<&'a I::Name> {
+    self.data.get(id).map(|i| i.name())
+  }
+}
+
+impl<I> SoursARCStorageReverseRef<I> for SimpleStorage<I>
+where
+  I: SoursARCInstance,
+{
+  fn get_id_by_name<'a>(
+    &'a self,
+    name: &I::Name,
+  ) -> Option<I::Id> {
+    self.table.get(name).copied()
+  }
+}
+impl<I> SoursARCStorageMut<I> for SimpleStorage<I>
+where
+  I: SoursARCInstance,
+{
+  type DataMut<'a>
+    = &'a mut I
+  where
+    Self: 'a;
+  fn get_mut<'a>(
+    &'a mut self,
+    id: <I as SoursARCInstance>::Id,
+  ) -> Option<Self::DataMut<'a>> {
+    self.data.get_mut(&id)
+  }
+  fn get_mut_by_name<'a>(
+    &'a mut self,
+    name: &I::Name,
+  ) -> Option<Self::DataMut<'a>> {
+    self.data.get_mut(self.table.get(name)?)
   }
 }

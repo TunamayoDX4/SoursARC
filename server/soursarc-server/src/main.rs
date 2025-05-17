@@ -17,7 +17,6 @@ const CONFIG_FILE: &str = "config.json";
 struct CommonConfig {
   pub log: logger::LoggerConfig,
   pub server: server::ServerConfig,
-  pub dashboard: server::dash_board::DashBoardConfig,
 }
 impl CommonConfig {
   /// 設定を初期化する

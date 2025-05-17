@@ -3,8 +3,6 @@ use std::{net::SocketAddr, sync::LazyLock};
 use axum::{Router, response::Html, routing::get};
 use serde::{Deserialize, Serialize};
 
-pub mod dash_board;
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ServerConfig {
   pub host: String,
@@ -69,7 +67,6 @@ pub async fn server_starting() -> Result<(), crate::StdError>
   tokio::spawn(wait_for_ctrlc_and_sigterm());
 
   let app = Router::new()
-    .nest("/dash_board", dash_board::router())
     .route("/", get(|| async { Html("Hello, World!") }));
 
   tracing::info!(

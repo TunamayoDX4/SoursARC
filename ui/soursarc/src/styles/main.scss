@@ -144,6 +144,21 @@ html {
           justify-content: start;
           align-items: center;
 
+          background-color: color-mix(
+            in srgb, 
+            var(--col-bg-sec) 25%, 
+            var(--col-bg-pri) 100%
+          );
+          border-bottom: 1px solid color-mix(
+            in srgb,
+            black 25%,
+            color-mix(
+              in srgb, 
+              var(--col-bg-sec) 50%, 
+              var(--col-bg-pri) 100%
+            )
+          );
+
           &> *:last-child {
             margin-left: auto;
           }
@@ -160,12 +175,34 @@ html {
 
           &> nav {
             flex: 0 0 auto;
+            width: min(33.3%, 10em);
             height: 100%;
+
+            padding: 0.25em;
+            padding-inline: 1em;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: start;
+            align-items: start;
+
+            border-right: 1px solid color-mix(
+              in srgb, 
+              black 25%, 
+              var(--col-bg-pri) 100%
+            );
           }
 
           &> section {
             flex: 1 1 auto;
             height: 100%;
+
+            padding: 0.25em;
+            
+            background-color: color-mix(
+              in srgb, 
+              white 50%, 
+              var(--col-bg-pri) 100%
+            );
           }
         }
       }
@@ -207,6 +244,51 @@ button {
   }
 }
 
+.dropdown-content {
+  --bg-color: var(--col-bg-pri);
+  --border-color: color-mix(
+    in srgb, 
+    black 50%, 
+    var(--col-border-pri) 100%
+  );
+
+  min-width: max(6em, max-content);
+  max-width: 100%;
+  z-index: 2000;
+  
+  padding: 0.125em;
+  padding-inline: 0.25em;
+
+  border: 1px solid var(--border-color);
+  border-radius: 0.3em;
+  background-color: var(--bg-color);
+
+  & .dropdown-item {
+    padding: 0.25em;
+    padding-inline: 0.5em;
+
+    cursor: pointer;
+    outline: none;
+
+    border-radius: 0.25em;
+
+    &:hover {
+      background-color: color-mix(
+        in srgb, 
+        var(--col-hover-mask) var(--col-hover-mask-opa), 
+        var(--bg-color) 100%
+      );
+    }
+    &:active {
+      background-color: color-mix(
+        in srgb, 
+        var(--col-active-mask) var(--col-active-mask-opa), 
+        var(--bg-color) 100%
+      );
+    }
+  }
+}
+
 /// ウィンドウ型ウィジェットのスタイル
 /// Window-type widget styles
 .widget-window {
@@ -225,6 +307,11 @@ button {
   background-color: var(--widget-bg);
   color: var(--widget-font);
 
+  display: flex;
+  flex-flow: column nowrap;
+
+  box-sizing: border-box;
+
   &> header {
     min-height: 0.25em;
     padding: 0.125em;
@@ -236,6 +323,23 @@ button {
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
+
+    & h1 {
+      font-size: 1.125em;
+      font-weight: 600;
+      color: var(--widget-font);
+    }
+    & h2 {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--widget-font);
+    }
+    & h3 {
+      font-size: 1.075em;
+      font-weight: 600;
+      color: var(--widget-font);
+    }
+
     & button {
       --button-bg: var(--col-bg-pri);
     }
@@ -245,12 +349,40 @@ button {
     --bg-color: var(--col-bg-pri);
     --font-color: var(--col-font-pri);
 
+    flex: 1 1 auto;
+
     background-color: var(--bg-color);
     color: var(--font-color);
   }
 
   &> footer {
     min-height: 0.25em;
+  }
+
+  &> .resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    width: 1em;
+    height: 1em;
+
+    border-bottom-right-radius: 0.5em;
+
+    cursor: nwse-resize;
+    background-color: color-mix(
+      in srgb, 
+      black 12.5%, 
+      transparent 100%
+    );
+
+    &:hover {
+      background-color: color-mix(
+        in srgb, 
+        black 33%, 
+        transparent 100%
+      );
+    }
   }
 }
 

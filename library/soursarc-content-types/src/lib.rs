@@ -14,12 +14,12 @@
 //! - フォルダ (Folder)
 //! - ドキュメント (Document)
 
-pub mod content;
-pub mod domain;
-pub mod tag;
+pub mod traits;
 
-pub mod content_traits;
-pub mod id;
+pub mod domain;
+
 pub mod storage;
 
-pub mod prelude;
+pub mod prelude {
+  pub use crate::{domain::*, storage::*, traits::*};
+}

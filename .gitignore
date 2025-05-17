@@ -4,6 +4,8 @@ node_modules/
 app/
 user_list/
 log/
+emoji_images/
+fluentui-emoji/assets/
 *.key
 *.log
 *.exe

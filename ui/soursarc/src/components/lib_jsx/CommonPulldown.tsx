@@ -28,27 +28,16 @@ export function CommonDropdown({
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          sideOffset={4}
+          className='dropdown-content'
           style={{
-            minWidth: 120,
-            background: 'var(--col-bg-pri)',
-            color: 'var(--col-font-pri)',
-            border: '1px solid var(--col-border-sec)',
-            borderRadius: 8,
             boxShadow: '0 2px 8px #0002',
-            padding: '0.25em 0',
-            zIndex: 2000,
           }}
         >
           {items.map((item, i) => (
             <DropdownMenu.Item
+              className='dropdown-item'
               key={i}
               onSelect={item.onSelect}
-              style={{
-                padding: '0.5em 1em',
-                cursor: 'pointer',
-                outline: 'none',
-              }}
             >
               {item.label}
             </DropdownMenu.Item>
