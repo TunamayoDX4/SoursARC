@@ -1,7 +1,7 @@
 {
   "rust-analyzer.linkedProjects": [
-    "${workspaceFolder}/server/soursarc-server/Cargo.toml",
-    "${workspaceFolder}/library/soursarc-content-types/Cargo.toml",
+    "${workspaceFolder}/server/sousarc-server/Cargo.toml",
+    "${workspaceFolder}/library/sousarc-content-types/Cargo.toml",
   ],
   "rust-analyzer.cargo.target": "x86_64-pc-windows-msvc",
 }

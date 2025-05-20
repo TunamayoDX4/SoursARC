@@ -1,0 +1,21 @@
+[package]
+name = "sousarc-server-comm"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies.sousarc-content-types]
+path = "../../../library/sousarc-content-types"
+
+[dependencies.wasm-bindgen]
+version = "0.2"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  "WebSocket"
+]
+
+[dependencies]

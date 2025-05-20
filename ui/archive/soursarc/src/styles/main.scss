@@ -1,0 +1,401 @@
+// デフォルトのスタイル
+// Default styles
+:root {
+  // ==== 色の設定 ====
+  // ==== Color settings ====
+
+  color-scheme: light dark;
+
+  --col-bg-pri: #d7d7d7;
+  --col-bg-sec: #67cf67;
+  --col-bg-ter: #e7c777;
+  --col-bg-qua: #3c3c7c;
+
+  --col-comple-pri: hsl(from var(--col-bg-pri) calc(h + 180) s calc(50 - l));
+  --col-comple-sec: hsl(from var(--col-bg-sec) calc(h + 180) s calc(50 - l));
+  --col-comple-ter: hsl(from var(--col-bg-ter) calc(h + 180) s calc(50 - l));
+  --col-comple-qua: hsl(from var(--col-bg-qua) calc(h + 180) s calc(50 - l));
+
+  --col-font-pri: hsl(from var(--col-bg-pri) calc(h + 180) s calc(100 - l));
+  --col-font-sec: hsl(from var(--col-bg-sec) calc(h + 180) s calc(100 - l));
+  --col-font-ter: hsl(from var(--col-bg-tri) calc(h + 180) s calc(100 - l));
+  --col-font-qua: hsl(from var(--col-bg-qua) calc(h + 180) s calc(100 - l));
+
+  --col-shadow-mask: black;
+  --col-border-mask: white;
+  --col-shadow-mask-opa: 50%;
+  --col-border-mask-opa: 80%;
+
+  --col-hover-mask: white;
+  --col-hover-mask-opa: 25%;
+  --col-active-mask: black;
+  --col-active-mask-opa: 25%;
+
+  --col-shadow-pri: color-mix(
+    in srgb, 
+    var(--col-shadow-mask) var(--col-shadow-mask-opa), 
+    var(--col-bg-pri) 100%
+  );
+  --col-shadow-sec: color-mix(
+    in srgb, 
+    var(--col-shadow-mask) var(--col-shadow-mask-opa), 
+    var(--col-bg-sec) 100%
+  )
+  --col-shadow-ter: color-mix(
+    in srgb, 
+    var(--col-shadow-mask) var(--col-shadow-mask-opa), 
+    var(--col-bg-ter) 100%
+  );
+  --col-shadow-qua: color-mix(
+    in srgb, 
+    var(--col-shadow-mask) var(--col-shadow-mask-opa), 
+    var(--col-bg-qua) 100%
+  );
+
+  --col-border-pri: color-mix(
+    in srgb, 
+    var(--col-border-mask) var(--col-border-mask-opa), 
+    var(--col-bg-pri) 100%
+  );
+  --col-border-sec: color-mix(
+    in srgb, 
+    var(--col-border-mask) var(--col-border-mask-opa), 
+    var(--col-bg-sec) 100%
+  );
+  --col-border-ter: color-mix(
+    in srgb, 
+    var(--col-border-mask) var(--col-border-mask-opa), 
+    var(--col-bg-ter) 100%
+  );
+  --col-border-qua: color-mix(
+    in srgb, 
+    var(--col-border-mask) var(--col-border-mask-opa), 
+    var(--col-bg-qua) 100%
+  );
+
+  // ==== フォントの設定 ====
+  // ==== Font settings ====
+
+  font-family: 'Noto Sans', sans-serif;
+  line-height: 1.125;
+  font-weight: 400;
+  font-synthesis: weight style;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  // ==== 基本レイアウトの設定 ====
+  // ==== Basic layout settings ====
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  text-decoration: none;
+}
+
+// ダークモードのスタイル
+// Dark mode styles
+@media (prefers-color-scheme: dark) {
+  :root {
+    --col-bg-pri: #1e1e1e;
+    --col-bg-sec: #253725;
+    --col-bg-ter: #734333;
+    --col-bg-qua: #1c1c3c;
+
+    --col-font-pri: #d4d4d4;
+    --col-font-sec: #c586c0;
+    --col-font-ter: #9cdcfe;
+    --col-font-qua: #ce9178;
+
+    --col-shadow-mask: lightblue;
+    --col-border-mask: slategray;
+  }
+}
+
+html {
+  width: 100%;
+  height: 100%;
+
+  &> body {
+    width: 100%;
+    height: 100%;
+
+    background-color: var(--col-bg-pri);
+    color: var(--col-font-pri);
+
+    &> #root {
+      width: 100%;
+      height: 100%;
+
+      &> #app {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: start;
+        align-items: center;
+
+        &> header {
+          flex: 0 0 auto;
+          width: 100%;
+          max-height: 3em;
+
+          display: flex;
+          flex-flow: row;
+          justify-content: start;
+          align-items: center;
+
+          background-color: color-mix(
+            in srgb, 
+            var(--col-bg-sec) 25%, 
+            var(--col-bg-pri) 100%
+          );
+          border-bottom: 1px solid color-mix(
+            in srgb,
+            black 25%,
+            color-mix(
+              in srgb, 
+              var(--col-bg-sec) 50%, 
+              var(--col-bg-pri) 100%
+            )
+          );
+
+          &> *:last-child {
+            margin-left: auto;
+          }
+        }
+        &> main {
+          flex: 1 1 auto;
+          width: 100%;
+          height: 100%;
+          
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: start;
+          align-items: center;
+
+          &> nav {
+            flex: 0 0 auto;
+            width: min(33.3%, 10em);
+            height: 100%;
+
+            padding: 0.25em;
+            padding-inline: 1em;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: start;
+            align-items: start;
+
+            border-right: 1px solid color-mix(
+              in srgb, 
+              black 25%, 
+              var(--col-bg-pri) 100%
+            );
+          }
+
+          &> section {
+            flex: 1 1 auto;
+            height: 100%;
+
+            padding: 0.25em;
+            
+            background-color: color-mix(
+              in srgb, 
+              white 50%, 
+              var(--col-bg-pri) 100%
+            );
+          }
+        }
+      }
+    }
+  }
+}
+
+// ボタンのスタイル
+button {
+  --button-bg: var(--col-bg-sec);
+
+  background-color: var(--button-bg);
+  color: var(--col-font-sec);
+  border: 1px solid var(--col-border-sec);
+  box-shadow: 0 0 0.25em var(--col-shadow-sec);
+  border-radius: 0.5em;
+  padding: 0.25em;
+  padding-inline: 0.5em;
+  cursor: pointer;
+  transition: all 0.01s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    --button-bg: var(--col-bg-sec);
+
+    background-color: color-mix(
+      in srgb, 
+      var(--col-hover-mask) var(--col-hover-mask-opa), 
+      var(--button-bg) 100%
+    );
+  }
+
+  &:active {
+    background-color: color-mix(
+      in srgb, 
+      var(--col-active-mask) var(--col-active-mask-opa), 
+      var(--button-bg) 100%
+    );
+    scale: 0.95;
+  }
+}
+
+.dropdown-content {
+  --bg-color: var(--col-bg-pri);
+  --border-color: color-mix(
+    in srgb, 
+    black 50%, 
+    var(--col-border-pri) 100%
+  );
+
+  min-width: max(6em, max-content);
+  max-width: 100%;
+  z-index: 2000;
+  
+  padding: 0.125em;
+  padding-inline: 0.25em;
+
+  border: 1px solid var(--border-color);
+  border-radius: 0.3em;
+  background-color: var(--bg-color);
+
+  & .dropdown-item {
+    padding: 0.25em;
+    padding-inline: 0.5em;
+
+    cursor: pointer;
+    outline: none;
+
+    border-radius: 0.25em;
+
+    &:hover {
+      background-color: color-mix(
+        in srgb, 
+        var(--col-hover-mask) var(--col-hover-mask-opa), 
+        var(--bg-color) 100%
+      );
+    }
+    &:active {
+      background-color: color-mix(
+        in srgb, 
+        var(--col-active-mask) var(--col-active-mask-opa), 
+        var(--bg-color) 100%
+      );
+    }
+  }
+}
+
+/// ウィンドウ型ウィジェットのスタイル
+/// Window-type widget styles
+.widget-window {
+  --widget-bg: var(--col-bg-sec);
+  --widget-font: var(--col-font-sec);
+  --widget-border: var(--col-border-sec);
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  padding: 0.125em;
+  border: 1px solid var(--widget-border);
+  border-radius: 0.5em;
+  box-shadow: 0 0 0.25em var(--col-shadow-sec);
+  background-color: var(--widget-bg);
+  color: var(--widget-font);
+
+  display: flex;
+  flex-flow: column nowrap;
+
+  box-sizing: border-box;
+
+  &> header {
+    min-height: 1.5em;
+    padding: 0.125em;
+    padding-inline: 0.25em;
+
+    cursor: move;
+    user-select: none;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    & h1 {
+      font-size: 1.125em;
+      font-weight: 600;
+      color: var(--widget-font);
+    }
+    & h2 {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--widget-font);
+    }
+    & h3 {
+      font-size: 1.075em;
+      font-weight: 600;
+      color: var(--widget-font);
+    }
+
+    & button {
+      height: 100%;
+      --button-bg: var(--col-bg-pri);
+    }
+  }
+
+  &> main {
+    --bg-color: var(--col-bg-pri);
+    --font-color: var(--col-font-pri);
+
+    flex: 1 1 auto;
+
+    padding: 1em;
+    overflow-y: auto;
+
+    background-color: var(--bg-color);
+    color: var(--font-color);
+  }
+
+  &> footer {
+    min-height: 0.25em;
+  }
+
+  &> .resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    width: 1em;
+    height: 1em;
+
+    border-bottom-right-radius: 0.5em;
+
+    cursor: nwse-resize;
+    background-color: color-mix(
+      in srgb, 
+      black 12.5%, 
+      transparent 100%
+    );
+
+    &:hover {
+      background-color: color-mix(
+        in srgb, 
+        black 33%, 
+        transparent 100%
+      );
+    }
+  }
+}
+

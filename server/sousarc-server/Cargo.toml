@@ -1,0 +1,31 @@
+[package]
+name = "sousarc-server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies.sousarc-content-types]
+path = "../../library/sousarc-content-types"
+
+[dependencies.serde]
+version = "1"
+features = ["derive"]
+
+[dependencies]
+tracing = "0.1"
+tracing-subscriber = "0.3"
+tracing-appender = "0.2"
+
+serde_bytes = "0.11"
+serde_json = "1"
+rmp-serde = "1"
+csv = "1"
+
+chrono = { version = "0.4", features = ["serde"] }
+
+rustls = "0.23"
+tokio = { version = "1", features = ["full"] }
+axum = { version = "0.8", features = ["ws"] }
+hyper = { version = "1", features = ["server"] }
+ulid = { version = "1", features = ["serde"] }
+argon2 = "0.5"
+password-hash = { version = "0.5", features = ["rand_core"] }

@@ -1,0 +1,351 @@
+:root {
+  --color-pri: #fff;
+  --color-sec: #7c7;
+  --color-ter: #fc9;
+  --color-qua: #47c;
+
+  --mask-pri: #000;
+  --mask-sec: #fff;
+
+  --bg-pri: color-mix(
+    in srgb, 
+    var(--mask-pri) 5%, 
+    var(--color-pri) 100%
+  );
+  --border-pri: hsl(
+    from var(--bg-pri) h calc(s * 1.1) calc(l * 0.75)
+  );
+}
+
+// 初期化
+html {
+  width: 100%;
+  height: 100%;
+  body {
+    width: 100%;
+    height: 100%;
+
+    & #root {
+      width: 100%;
+      height: 100%;
+    }
+
+    & *,*:is(:before, :after) {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none;
+      outline: none;
+      text-decoration: none;
+    }
+  }
+}
+
+#app-root {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  
+  background-color: var(--bg-pri);
+  &> header {
+    flex: 0 0 auto;
+    display: flex;
+    flex-flow: column nowrap;
+
+    height: fit-content;
+    overflow: hidden;
+
+    &> *{
+      padding-inline: 1em;
+    }
+    
+    &> #title {
+      min-height: 1.5em;
+
+      background-color: var(--bg-pri);
+      border-bottom: solid 1px var(--border-pri);
+    }
+    &> #menu {
+      min-height: clamp(1.5em, 5%, 3em);
+
+      border-bottom: solid 1px var(--border-pri);
+    }
+  }
+
+  &> main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: row nowrap;
+    overflow: hidden;
+
+    &> #navi {
+      flex: 0 0 auto;
+      width: clamp(8em, 15%, 20em);
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: start;
+      align-items: start;
+      padding-inline: 0.25em;
+
+      overflow: auto;
+
+      background-color: var(--bg-pri);
+      border-right: solid 1px var(--border-pri);
+    }
+    &> #content {
+      flex: 1 1 auto;
+    }
+  }
+}
+
+.MenubarRoot {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: start;
+  align-items: center;
+
+  background-color: var(--bg-pri);
+  border-bottom: solid 1px var(--border-pri);
+
+  &> .MenubarTrigger {
+    padding-inline: 1em;
+
+    :is(&:active,&[data-state="open"]) {
+      background-color: color-mix(
+        in srgb, 
+        black 10%, 
+        var(--bg-pri)
+      );
+    }
+  }
+}
+
+.MenubarContent,.MenubarSubContent,.ContextMenuContent,.ContextMenuSubContent {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: start;
+  align-items: start;
+
+  padding: 0.125em;
+
+  background-color: var(--bg-pri);
+  border: solid 1px var(--border-pri);
+  border-radius: 0.5em;
+
+  &> .MenubarItem, &> .MenubarSubTrigger,&> .ContextMenuItem {
+    width: 100%;
+    min-width: 6em;
+    cursor: pointer;
+    padding-inline: 1em;
+
+    border-radius: 0.35em;
+
+    :is(&:hover,&[data-state="open"]) {
+      background-color: color-mix(
+        in srgb, 
+        white 50%, 
+        var(--bg-pri)
+      );
+    }
+    :is(&:active) {
+      background-color: color-mix(
+        in srgb, 
+        black 10%, 
+        var(--bg-pri)
+      );
+    }
+  }
+
+  & .MenubarSeparator,& .ContextMenuSeparator {
+    height: 1px;
+    background-color: var(--border-pri);
+    margin: 1px 0;
+    width: 100%;
+  }
+}
+
+:is(.MenubarTrigger, .MenubarSubTrigger, .MenubarItem):has(kbd) {
+  &> kbd {
+    display: none;
+  }
+  &:hover > kbd {
+    display: inline-block;
+  }
+}
+
+#content.root {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: start;
+  align-items: center;
+  
+  overflow-y: auto;
+
+  background-color: var(--bg-pri);
+
+  &> *{
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  &> header {
+    height: 3em;
+
+    border-bottom: solid 1px var(--border-pri);
+  }
+  &> main {
+    flex: 1 1 auto;
+
+    display: flex;
+    flex-flow: column nowrap;
+
+    &> section:first-child {
+      flex: 1 1 auto;
+
+      min-height: 50vh;
+      padding: 0.25em;
+
+      &> .instance-card {
+        width: 100%;
+        height: 100%;
+
+        &> div > main {
+          flex: 1 1 auto;
+        }
+      }
+    }
+
+    &> section:last-child {
+      flex: 0 0 auto;
+
+      width: 100%;
+      height: 100%;
+
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: start;
+      align-content: start;
+      align-items: start;
+
+      padding: 0.25em;
+
+      &> .instance-card {
+        flex: 1 1 auto;
+        min-width: min(8em, 100%);
+        max-width: 30em;
+      }
+    }
+  }
+}
+
+.instance-card {
+  padding: 0.25em;
+
+  &> div {
+    width: 100%;
+    height: 100%;
+    padding: 0.125em;
+
+    display: flex;
+    flex-flow: column nowrap;
+
+    &> header {
+      flex: 0 0 auto;
+      padding: 0.125em;
+      padding-inline: 0.5em;
+    }
+    &> main {
+      flex: 0 0 auto;
+      padding: 0.25em;
+      padding-inline: 0.5em;
+      border: solid 1px var(--border-pri);
+      border-radius: 0.4em;
+
+      & hr {
+        padding: 0.33em;
+        padding-inline: 0em;
+        border-bottom: solid 1px var(--border-pri);
+      }
+      & ul {
+        padding-left: 1em;
+      }
+      & table {
+        border-left: solid 1px var(--border-pri);
+
+        & th, & td {
+          border-right: solid 1px var(--border-pri);
+          padding-inline: 0.25em;
+        }
+      } 
+      & pre {
+        padding: 0.25em;
+        border: solid 1px var(--border-pri);
+        border-radius: 0.3em;
+        background-color: var(--bg-pri);
+      }
+    }
+  }
+}
+
+.DialogContent {
+  position: fixed;
+
+  padding: 0.25em;
+  border: solid 1px var(--border-pri);
+  border-radius: 0.5em;
+
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  background-color: var(--bg-pri);
+}
+
+.CardEditor {
+  padding: 0.25em;
+  &> header {
+    flex: 0 0 auto;
+  }
+  &> main {
+    flex: 1 1 auto;
+    width: 100%;
+
+    &> textarea {
+      min-width: 25em;
+      min-height: 10em;
+
+      padding: 0.25em;
+
+      border: solid 1px var(--border-pri);
+      border-radius: 0.4em;
+    }
+  }
+  &> footer {
+    flex: 0 0 auto;
+    width: 100%;
+
+    padding: 0.25em;
+    gap: 0.5em;
+
+    display: flex;
+    flex-flow: row nowrap;
+
+    justify-content: end;
+    align-items: center;
+
+    &> button {
+      padding: 0.25em;
+      padding-inline: 0.5em;
+
+      border: solid 1px var(--border-pri);
+      border-radius: 0.4em;
+    }
+  }
+}
