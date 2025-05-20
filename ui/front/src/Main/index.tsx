@@ -1,5 +1,5 @@
 import { Card, Text } from "@radix-ui/themes";
-import { type Instance } from "../libraries/instances";
+import { type Instance, type dataWrap } from "../libraries/instances";
 import React, { useState } from "react";
 import { Heading } from "@radix-ui/themes/src/index.js";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -159,6 +159,16 @@ export function Main() {
       { title: "そそそ", main: "たたた" },
     ],
   });
+
+  let v: dataWrap<unknown, unknown> = {
+    id: "1",
+    key: "key",
+    value: "value",
+  };
+  if (typeof v.key === "string" && typeof v.value === "string") {
+    console.log(v.key);
+  }
+
 
   return (<main>
     <nav id="navi">あああ</nav>

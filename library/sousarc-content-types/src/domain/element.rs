@@ -36,6 +36,12 @@ impl SousARCIdHasChild<ElementData, ElementData, ElementKey>
 {
 }
 
+impl ToString for ElementId {
+  fn to_string(&self) -> String {
+    self.0.to_string()
+  }
+}
+
 #[derive(
   Debug,
   Clone,
@@ -54,6 +60,16 @@ pub struct ElementKey {
 }
 impl SousARCKey for ElementKey {
   type Bound = ElementData;
+}
+
+impl ToString for ElementKey {
+  fn to_string(&self) -> String {
+    format!(
+      "{}:{}",
+      self.work_id.to_string(),
+      self.element_name
+    )
+  }
 }
 
 impl SousARCKeyHasParent<WorkData, ElementData, WorkId>

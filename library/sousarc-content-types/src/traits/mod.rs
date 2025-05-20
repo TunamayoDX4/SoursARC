@@ -7,7 +7,9 @@
 //!
 //! これらは相互に依存しつつ、柔軟なデータ構造を表現するための基盤となるよ！
 
-use serde::{Deserialize, Serialize};
+use serde::{
+  Deserialize, Serialize, de::Visitor, ser::SerializeStruct,
+};
 use std::hash::Hash;
 
 pub mod primitive;
@@ -53,6 +55,110 @@ where
 
   pub fn key(&self) -> &I::Key {
     &self.ident.key
+  }
+}
+impl<I, W> Serialize for SousARCDataWrap<I, W>
+where
+  I: SousARCData,
+  W: From<I> + Serialize,
+{
+  fn serialize<S>(
+    &self,
+    serializer: S,
+  ) -> Result<S::Ok, S::Error>
+  where
+    S: serde::Serializer,
+  {
+    let mut state =
+      serializer.serialize_struct("SousARCDataWrap", 2)?;
+    state.serialize_field("ident", &self.ident)?;
+    state.serialize_field("data", &self.data)?;
+    state.end()
+  }
+}
+impl<'de, I, W> Deserialize<'de> for SousARCDataWrap<I, W>
+where
+  I: SousARCData,
+  W: From<I> + Deserialize<'de>,
+{
+  fn deserialize<D>(
+    deserializer: D,
+  ) -> Result<Self, D::Error>
+  where
+    D: serde::Deserializer<'de>,
+  {
+    struct SousARCDataWrapVisitor<I, W>
+    where
+      I: SousARCData,
+      W: From<I>,
+    {
+      marker: std::marker::PhantomData<(I, W)>,
+    }
+    impl<'de, I, W> Visitor<'de> for SousARCDataWrapVisitor<I, W>
+    where
+      I: SousARCData,
+      W: From<I> + Deserialize<'de>,
+    {
+      type Value = SousARCDataWrap<I, W>;
+
+      fn expecting(
+        &self,
+        formatter: &mut std::fmt::Formatter,
+      ) -> std::fmt::Result {
+        formatter.write_str("struct SousARCDataWrap")
+      }
+
+      fn visit_map<V>(
+        self,
+        mut map: V,
+      ) -> Result<Self::Value, V::Error>
+      where
+        V: serde::de::MapAccess<'de>,
+      {
+        let mut ident = None;
+        let mut data = None;
+        while let Some(key) = map.next_key()? {
+          match key {
+            "ident" => {
+              if ident.is_some() {
+                return Err(
+                  serde::de::Error::duplicate_field("ident"),
+                );
+              }
+              ident = Some(map.next_value()?);
+            }
+            "data" => {
+              if data.is_some() {
+                return Err(
+                  serde::de::Error::duplicate_field("data"),
+                );
+              }
+              data = Some(map.next_value()?);
+            }
+            _ => {
+              return Err(serde::de::Error::unknown_field(
+                key,
+                &["ident", "data"],
+              ));
+            }
+          }
+        }
+        let ident = ident.ok_or_else(|| {
+          serde::de::Error::missing_field("ident")
+        })?;
+        let data = data.ok_or_else(|| {
+          serde::de::Error::missing_field("data")
+        })?;
+        Ok(SousARCDataWrap { ident, data })
+      }
+    }
+    deserializer.deserialize_struct(
+      "SousARCDataWrap",
+      &["ident", "data"],
+      SousARCDataWrapVisitor::<I, W> {
+        marker: std::marker::PhantomData,
+      },
+    )
   }
 }
 

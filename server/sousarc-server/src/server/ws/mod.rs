@@ -10,7 +10,6 @@ static USERS: LazyLock<StandardStorage<UserData, UserData>> =
       display_name: "ツナマヨ".to_string(),
       introduction: "冒険や日常、SFが好きなしがない創作者"
         .to_string(),
-      email: "usermail@example.com".to_string(),
     };
     let user = SousARCDataWrap {
       data: user,

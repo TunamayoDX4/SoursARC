@@ -21,6 +21,7 @@ pub trait SousARCId:
   Debug
   + Send
   + Sync
+  + ToString
   + Copy
   + Ord
   + Hash
@@ -47,6 +48,7 @@ pub trait SousARCKey:
   Debug
   + Send
   + Sync
+  + ToString
   + Clone
   + Ord
   + Hash

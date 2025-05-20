@@ -36,6 +36,12 @@ impl SousARCId for UserId {
   type Bound = UserData;
 }
 
+impl ToString for UserId {
+  fn to_string(&self) -> String {
+    self.0.to_string()
+  }
+}
+
 impl SousARCIdHasChild<UserData, WorkData, WorkKey>
   for UserId
 {
@@ -62,6 +68,12 @@ impl UserKey {
 impl SousARCKey for UserKey {
   type Bound = UserData;
 }
+
+impl ToString for UserKey {
+  fn to_string(&self) -> String {
+    self.0.to_string()
+  }
+}
 #[derive(Debug, Serialize, Deserialize)]
 /// ユーザ
 ///
@@ -76,9 +88,6 @@ pub struct UserData {
 
   /// ユーザによる自己紹介
   pub introduction: String,
-
-  /// ユーザのEメールアドレス
-  pub email: String,
 }
 impl SousARCData for UserData {
   type Id = UserId;
