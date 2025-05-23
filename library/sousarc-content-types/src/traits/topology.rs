@@ -23,9 +23,9 @@ where
   fn children(&self) -> impl Iterator<Item = C::Id>;
 
   /// 子要素キーのイテレータを返す
-  fn children_key<'a, W: From<C>>(
+  fn children_key<'a>(
     &self,
-    storage: &'a impl SousARCStorage<C, W>,
+    storage: &'a impl SousARCStorage<C>,
   ) -> impl Iterator<Item = &'a C::Key> {
     self.children().filter_map(|id| storage.key(id))
   }
@@ -42,6 +42,12 @@ where
   Self: SousARCId<Bound = P>,
   Ck: SousARCKeyHasParent<P, C, Self>,
 {
+  fn child_key<T>(&self, value: T) -> Ck
+  where
+    Ck: From<(Self, T)>,
+  {
+    Ck::from((self.clone(), value))
+  }
 }
 /*
 /// 自動実装
@@ -89,13 +95,13 @@ where
   Self: SousARCKey<Bound = C>,
 {
   /// 親IDのイテレータを返す
-  fn parent_id(&self) -> impl Iterator<Item = P::Id>;
+  fn parent_id(&self) -> Option<P::Id>;
 
   /// 親キーのイテレータを返す
-  fn parent_key<'a, W: From<P>>(
+  fn parent_key<'a>(
     &self,
-    storage: &'a impl SousARCStorage<P, W>,
-  ) -> impl Iterator<Item = &'a P::Key> {
-    self.parent_id().filter_map(|id| storage.key(id))
+    storage: &'a impl SousARCStorage<P>,
+  ) -> Option<&'a P::Key> {
+    self.parent_id().and_then(|id| storage.key(id))
   }
 }

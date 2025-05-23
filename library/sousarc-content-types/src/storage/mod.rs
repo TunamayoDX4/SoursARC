@@ -2,18 +2,20 @@ use std::collections::{HashMap, VecDeque};
 
 use indexmap::IndexMap;
 
-use crate::traits::{
-  SousARCData, SousARCDataWrap, SousARCStorage,
-  SousARCStorageMut,
-};
+use crate::traits::prelude::*;
 
-pub struct StandardStorage<D: SousARCData, W: From<D>> {
-  pub data: Vec<Option<SousARCDataWrap<D, W>>>,
+#[derive(Debug)]
+pub struct StandardStorage<D: SousARCData> {
+  pub data: Vec<Option<D>>,
   pub empty_slot: VecDeque<usize>,
   pub keymap: IndexMap<D::Key, usize>,
   pub idmap: HashMap<D::Id, usize>,
 }
-impl<D: SousARCData, W: From<D>> StandardStorage<D, W> {
+impl<D: SousARCData> StandardStorage<D> {
+  pub fn get_data(&self) -> &Vec<Option<D>> {
+    &self.data
+  }
+
   pub fn new() -> Self {
     Self {
       data: Vec::new(),
@@ -23,25 +25,31 @@ impl<D: SousARCData, W: From<D>> StandardStorage<D, W> {
     }
   }
 
-  pub fn insert(
-    &mut self,
-    data: SousARCDataWrap<D, W>,
-  ) -> Option<SousARCDataWrap<D, W>> {
-    let idx = if let Some(idx) = self.empty_slot.pop_front()
+  pub fn remove(&mut self, id: D::Id) -> Option<D> {
+    if let Some(idx) = self.idmap.remove(&id) {
+      if let Some(data) = self.data[idx].take() {
+        self.keymap.shift_remove(data.key());
+        self.empty_slot.push_back(idx);
+        return Some(data);
+      }
+    }
+    None
+  }
+
+  pub fn insert(&mut self, data: D) -> Option<D> {
+    let idx = self
+      .empty_slot
+      .pop_front()
+      .ok_or_else(|| self.data.len());
+    if let Some(_) = self
+      .keymap
+      .insert(data.key().clone(), idx.unwrap_or_else(|e| e))
     {
-      Ok(idx)
-    } else {
-      Err(self.data.len())
-    };
-    if let Some(_) = self.keymap.insert(
-      data.key().clone(),
-      idx.map_or_else(|e| e, |o| o),
-    ) {
       Some(data)
     } else {
       match self
         .idmap
-        .insert(data.id(), idx.map_or_else(|e| e, |o| o))
+        .insert(data.id(), idx.unwrap_or_else(|e| e))
       {
         None => {}
         Some(_) => unreachable!("IDが重複しています"),
@@ -51,42 +59,38 @@ impl<D: SousARCData, W: From<D>> StandardStorage<D, W> {
           self.data[idx] = Some(data);
           None
         }
-        Err(idx) => {
+        Err(_) => {
           self.data.push(Some(data));
-          self.empty_slot.push_back(idx);
           None
         }
       }
     }
   }
 }
-impl<D, W> SousARCStorage<D, W> for StandardStorage<D, W>
+impl<D> SousARCStorage<D> for StandardStorage<D>
 where
   D: SousARCData,
-  W: From<D>,
 {
-  fn get(&self, id: <D as SousARCData>::Id) -> Option<&W> {
-    if let Some(idx) = self.idmap.get(&id) {
-      if let Some(data) = self.data.get(*idx) {
-        return data.as_ref().map(|d| &d.data);
-      }
-    }
-    None
+  fn get(&self, id: <D as SousARCData>::Id) -> Option<&D> {
+    self
+      .idmap
+      .get(&id)
+      .map(|i| self.data[*i].as_ref())
+      .flatten()
   }
 
   fn get_by_key<Q: Eq + std::hash::Hash>(
     &self,
     key: &Q,
-  ) -> Option<&W>
+  ) -> Option<&D>
   where
     <D as SousARCData>::Key: std::borrow::Borrow<Q>,
   {
-    if let Some(idx) = self.keymap.get(key) {
-      if let Some(data) = self.data.get(*idx) {
-        return data.as_ref().map(|d| &d.data);
-      }
-    }
-    None
+    self
+      .keymap
+      .get(key)
+      .map(|i| self.data[*i].as_ref())
+      .flatten()
   }
 
   fn id<Q: Eq + std::hash::Hash>(
@@ -116,35 +120,28 @@ where
     None
   }
 }
-impl<D, W> SousARCStorageMut<D, W> for StandardStorage<D, W>
+impl<D> SousARCStorageMut<D> for StandardStorage<D>
 where
   D: SousARCData,
-  W: From<D>,
 {
   fn get_mut(
     &mut self,
     id: <D as SousARCData>::Id,
-  ) -> Option<&mut W> {
-    if let Some(idx) = self.idmap.get(&id) {
-      if let Some(data) = self.data.get_mut(*idx) {
-        return data.as_mut().map(|d| &mut d.data);
-      }
-    }
-    None
+  ) -> Option<&mut D> {
+    self
+      .idmap
+      .get(&id)
+      .map(|i| self.data[*i].as_mut())
+      .flatten()
   }
 
   fn get_by_key_mut<Q: Eq + std::hash::Hash>(
     &mut self,
     key: &Q,
-  ) -> Option<&mut W>
+  ) -> Option<&mut D>
   where
     <D as SousARCData>::Key: std::borrow::Borrow<Q>,
   {
-    if let Some(idx) = self.keymap.get(key) {
-      if let Some(data) = self.data.get_mut(*idx) {
-        return data.as_mut().map(|d| &mut d.data);
-      }
-    }
-    None
+    self.keymap.get(key).and_then(|i| self.data[*i].as_mut())
   }
 }

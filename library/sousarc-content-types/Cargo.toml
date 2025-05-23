@@ -1,19 +1,23 @@
 [package]
 name = "sousarc-content-types"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 
 [dependencies.serde]
 version = "1"
 features = ["derive"]
 
-[dependencies.ulid]
+[dependencies.uuid]
 version = "1"
-features = ["serde"]
+features = ["serde", "v7", "js"]
 
 [dependencies.indexmap]
 version = "2"
 features = ["serde"]
+
+[dependencies.tokio]
+version = "1"
+features = ["sync"]
 
 [dependencies]
 tracing = "0.1"
